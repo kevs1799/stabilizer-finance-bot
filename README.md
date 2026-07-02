@@ -1,134 +1,134 @@
-# Stabilizer Finance BOT — CommonJS Edition
+# Stabilizer Finance BOT — Phiên bản CommonJS
 
 ![Node.js](https://img.shields.io/badge/Node.js-18%2B-green.svg)
 ![License](https://img.shields.io/badge/License-MIT-blue.svg)
 
-> Automated volume farming bot for the Stabilizer Finance testnet (Sepolia).  
-> Executes round-trip swaps through the Router contract to accumulate SP points efficiently, stopping when the daily cap is reached.
+> Bot tự động farm volume trên testnet của Stabilizer Finance (Sepolia).
+> Thực hiện swap khứ hồi qua hợp đồng Router để tích lũy điểm SP hiệu quả, dừng lại khi đạt hạn mức ngày.
 
 ---
 
-## Table of Contents
+## Mục lục
 
-- [Overview](#overview)
-- [Features](#features)
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Configuration](#configuration)
-- [Usage](#usage)
-- [Proxy Setup](#proxy-setup)
-- [How It Works](#how-it-works)
-- [Troubleshooting](#troubleshooting)
-- [Security Notes](#security-notes)
-- [Contributing](#contributing)
-- [License](#license)
-
----
-
-## Overview
-
-Stabilizer Finance BOT automates volume farming on the Stabilizer Finance testnet (Sepolia).  
-It repeatedly swaps between supported stablecoins (USDT ⟷ USDZ) via the on-chain Router contract to generate trading volume, which in turn earns you SP (Stability Points). The bot automatically monitors your SP balance and stops once your daily target is reached.
-
-This edition is a **complete CommonJS (Node.js) rewrite** of the original Python bot. It is designed to run standalone on any server with Node.js 18+ installed.
+- [Tổng quan](#tổng-quan)
+- [Tính năng](#tính-năng)
+- [Yêu cầu](#yêu-cầu)
+- [Cài đặt](#cài-đặt)
+- [Cấu hình](#cấu-hình)
+- [Sử dụng](#sử-dụng)
+- [Thiết lập Proxy](#thiết-lập-proxy)
+- [Cách hoạt động](#cách-hoạt-động)
+- [Khắc phục sự cố](#khắc-phục-sự-cố)
+- [Lưu ý bảo mật](#lưu-ý-bảo-mật)
+- [Đóng góp](#đóng-góp)
+- [Giấy phép](#giấy-phép)
 
 ---
 
-## Features
+## Tổng quan
 
-- **Auto-Swap** — Automated round-trip token swaps (USDT → USDZ → USDT) through the Router contract
-- **Multi-Token Support** — USDT, USDC, USDS, PYUSD, USDZ
-- **SP Status Tracking** — Real-time monitoring of SP points, rank, and daily progress via the Stabilizer API
-- **Proxy Support** — HTTP, HTTPS, and SOCKS5 proxy support with round-robin assignment per account
-- **Multi-Account** — Process multiple wallets from `accounts.txt`
-- **Daily Cap Awareness** — Stops farming automatically when the configured daily SP cap is reached
-- **Gas Efficient** — Large swap amounts (configurable, default $50K) for optimal gas usage on testnet
-- **Smart Approvals** — Auto-approve tokens for Router spending only when the current allowance is insufficient
-- **Beautiful Logging** — Colorful terminal output with timestamped WIB (Asia/Jakarta) timezone logs
-- **Graceful Shutdown** — Handles SIGINT / SIGTERM cleanly
+Stabilizer Finance BOT tự động farm volume trên testnet của Stabilizer Finance (Sepolia).
+Bot liên tục swap giữa các stablecoin được hỗ trợ (USDT ⟷ USDZ) qua hợp đồng Router trên chuỗi để tạo ra khối lượng giao dịch, từ đó giúp bạn kiếm được SP (Stability Points). Bot tự động theo dõi số dư SP của bạn và dừng lại khi đạt mục tiêu ngày.
+
+Phiên bản này là bản **viết lại hoàn toàn bằng CommonJS (Node.js)** từ bot gốc bằng Python. Nó được thiết kế để chạy độc lập trên bất kỳ server nào có cài Node.js 18+.
 
 ---
 
-## Requirements
+## Tính năng
 
-- **Node.js** 18.0 or higher
-- **Ethereum wallet(s)** with testnet tokens (Sepolia ETH + stablecoins)
-- **RPC endpoint** (default: PublicNode Sepolia `https://ethereum-sepolia-rpc.publicnode.com`)
-- **Optional:** HTTP / SOCKS5 proxies
+- **Swap tự động** — Tự động swap token khứ hồi (USDT → USDZ → USDT) qua hợp đồng Router.
+- **Hỗ trợ đa token** — USDT, USDC, USDS, PYUSD, USDZ.
+- **Theo dõi SP** — Giám sát thời gian thực điểm SP, thứ hạng và tiến trình ngày qua API của Stabilizer.
+- **Hỗ trợ Proxy** — Hỗ trợ proxy HTTP, HTTPS và SOCKS5 với phân phối round-robin theo tài khoản.
+- **Đa tài khoản** — Xử lý nhiều ví từ `accounts.txt`.
+- **Nhận biết hạn mức ngày** — Dừng farm tự động khi đạt mức SP ngày được cấu hình.
+- **Tiết kiệm gas** — Số lượng swap lớn (có thể cấu hình, mặc định $50K) để tối ưu phí gas trên testnet.
+- **Phê duyệt thông minh** — Tự động phê duyệt token cho Router chỉ khi allowance hiện tại không đủ.
+- **Ghi log đẹp** — Terminal đầy màu với log timestamp theo múi giờ WIB (Asia/Jakarta).
+- **Tắt ứng dụng an toàn** — Xử lý sạch sẽ tín hiệu SIGINT / SIGTERM.
 
 ---
 
-## Installation
+## Yêu cầu
 
-1. Clone the repository:
+- **Node.js** phiên bản 18.0 trở lên.
+- **Ví Ethereum** có token testnet (ETH Sepolia + stablecoin).
+- **RPC endpoint** (mặc định: PublicNode Sepolia `https://ethereum-sepolia-rpc.publicnode.com`).
+- **Tùy chọn:** Proxy HTTP / SOCKS5.
+
+---
+
+## Cài đặt
+
+1. Clone repository:
 
 ```bash
 git clone https://github.com/kevs1799/stabilizer-finance-bot.git
 cd stabilizer-finance-bot
 ```
 
-2. Install dependencies:
+2. Cài đặt dependencies:
 
 ```bash
 npm install
 ```
 
-3. Copy `.env.example` to `.env` and configure the variables:
+3. Copy `.env.example` sang `.env` và cấu hình các biến:
 
 ```bash
 cp .env.example .env
 ```
 
-4. Add your private keys to `accounts.txt` (one per line):
+4. Thêm private key vào `accounts.txt` (mỗi dòng 1 key):
 
-```
-0xYourPrivateKey1
-0xYourPrivateKey2
+```bash
+0xPrivateKey1
+0xPrivateKey2
 ```
 
-5. (Optional) Add proxies to `proxy.txt` (one per line):
+5. (Tùy chọn) Thêm proxy vào `proxy.txt` (mỗi dòng 1 proxy):
 
-```
+```bash
 http://ip:port
 socks5://ip:port
 ```
 
 ---
 
-## Configuration
+## Cấu hình
 
-All configuration is handled via environment variables in `.env` and plain-text config files.
+Tất cả cấu hình được quản lý qua biến môi trường trong `.env` và tập tin cấu hình dạng văn bản thuần.
 
 ### `.env`
 
 ```env
-SWAP_AMOUNT=50000       # Swap amount in USD per leg (default: 50000)
-DAILY_CAP=20000         # Daily SP cap target (default: 20000)
+SWAP_AMOUNT=50000       # Số lượng swap theo USD mỗi chân (mặc định: 50000)
+DAILY_CAP=20000         # Mục tiêu SP ngày (mặc định: 20000)
 RPC_URL=https://ethereum-sepolia-rpc.publicnode.com
 ```
 
-| Variable        | Description                            | Default                                   |
-| --------------- | -------------------------------------- | ----------------------------------------- |
-| `SWAP_AMOUNT`   | Notional swap amount in USD            | `50000`                                   |
-| `DAILY_CAP`     | Stop farming after this many SP points | `20000`                                   |
-| `RPC_URL`       | Sepolia JSON-RPC endpoint              | `https://ethereum-sepolia-rpc.publicnode.com` |
+| Biến        | Mô tả                                        | Mặc định                                    |
+|-------------|----------------------------------------------|----------------------------------------------| 
+| `SWAP_AMOUNT` | Giá trị swap theo giá USD                    | `50000`                                      |
+| `DAILY_CAP`   | Dừng farm sau số điểm SP này trong ngày      | `20000`                                      |
+| `RPC_URL`     | Endpoint JSON-RPC của Sepolia               | `https://ethereum-sepolia-rpc.publicnode.com` | 
 
 ### `accounts.txt`
 
-Add one EVM private key per line. Lines starting with `#` are ignored.
+Thêm 1 private key EVM mỗi dòng. Các dòng bắt đầu bằng `#` sẽ bị bỏ qua.
 
 ```
-# One private key per line
+# Một private key mỗi dòng
 0xabc123...
 0xdef456...
 ```
 
 ### `proxy.txt`
 
-Add your proxies (one per line). Proxies are assigned round-robin to accounts. If fewer proxies than accounts are supplied, the pattern repeats.
+Thêm proxy của bạn (mỗi dòng 1 proxy). Proxy được gán round-robin cho từng tài khoản. Nếu số proxy ít hơn số tài khoản, mẫu sẽ lặp lại.
 
 ```
-# Supported formats:
+# Các định dạng được hỗ trợ:
 http://user:pass@host:port
 https://user:pass@host:port
 socks5://host:port
@@ -136,60 +136,60 @@ socks5://host:port
 
 ---
 
-## Usage
+## Sử dụng
 
-Start the bot interactively:
+Khởi chạy bot ở chế độ tương tác:
 
 ```bash
 node bot.js
-# or
+# hoặc
 npm start
 ```
 
-You will see an interactive menu:
+Bạn sẽ thấy menu tương tác:
 
 ```
 [ MENU ] ══════════════════════════════════
-[1] Check SP Status
-[2] Approve Tokens
-[3] Volume Farm (Auto-Swap)
-[4] Run All Features
-[ ? ] Select option :
+[1] Kiểm tra trạng thái SP
+[2] Phê duyệt Token
+[3] Farm Volume (Swap tự động)
+[4] Chạy tất cả tính năng
+[ ? ] Chọn tùy chọn :
 ```
 
-### Menu Options
+### Các tùy chọn menu
 
-| Option | Description                                                                                                        |
-| ------ | ------------------------------------------------------------------------------------------------------------------ |
-| `1`    | Check current SP points, global rank, total trades, total volume, and today's earned SP for each loaded account.   |
-| `2`    | Check and (if needed) approve the Router contract to spend stablecoins on behalf of each account.                  |
-| `3`    | Run the automated volume farming loop: fetch status, compute swaps needed to reach the daily cap, then execute.    |
-| `4`    | Run option 1 → 2 → 3 sequentially in one go.                                                                       |
+| Tùy chọn | Mô tả                                                                                               |
+|----------|------------------------------------------------------------------------------------------------------|
+| `1`      | Kiểm tra điểm SP hiện tại, xếp hạng toàn cầu, tổng số giao dịch, tổng volume và SP hôm nay của từng tài khoản đã nạp. |
+| `2`      | Kiểm tra và (nếu cần) phê duyệt hợp đồng Router sử dụng stablecoin thay mặt cho từng tài khoản.     |
+| `3`      | Chạy vòng lặp farm volume tự động: lấy trạng thái, tính toán số swap cần thiết để đạt hạn mức ngày, rồi thực thi. |
+| `4`      | Chạy tùy chọn 1 → 2 → 3 theo thứ tự trong một lệnh.                                                 |
 
-### Example Workflow
+### Ví dụ quy trình
 
 ```bash
 node bot.js
-# Select "4" to approve tokens and start farming in one command
+# Chọn "4" để phê duyệt token và bắt đầu farm trong một lệnh duy nhất
 ```
 
 ---
 
-## Proxy Setup
+## Thiết lập Proxy
 
-Using proxies is highly recommended to avoid rate limits when querying the Stabilizer API and to distribute RPC load.
+Sử dụng proxy rất được khuyến nghị để tránh giới hạn tốc độ khi truy vấn API Stabilizer và phân tán tải RPC.
 
-### Supported Formats
+### Các định dạng được hỗ trợ
 
-The bot supports three proxy formats out of the box:
+Bot hỗ trợ 3 định dạng proxy:
 
 - **HTTP:** `http://127.0.0.1:8080`
 - **HTTPS:** `https://user:pass@proxy.example.com:443`
 - **SOCKS5:** `socks5://127.0.0.1:1080`
 
-### Round-Robin Assignment
+### Phân phối round-robin
 
-Each account is assigned a proxy based on its index in `accounts.txt` modulo the number of proxies in `proxy.txt`.
+Mỗi tài khoản được gán proxy dựa trên chỉ số của nó trong `accounts.txt` modulo số lượng proxy trong `proxy.txt`.
 
 ```
 accounts: [A1, A2, A3, A4]
@@ -198,7 +198,7 @@ proxies : [P1, P2]
 A1 → P1, A2 → P2, A3 → P1, A4 → P2
 ```
 
-### Recommended Providers
+### Nhà cung cấp được đề xuất
 
 - [Smartproxy](https://smartproxy.com/)
 - [Bright Data](https://brightdata.com/)
@@ -206,100 +206,98 @@ A1 → P1, A2 → P2, A3 → P1, A4 → P2
 
 ---
 
-## How It Works
+## Cách hoạt động
 
-### SP Status Check
+### Kiểm tra trạng thái SP
 
-The bot queries `https://app.stabilizer.finance/api/zpoints/user/{wallet}` and extracts:
+Bot truy vấn `https://app.stabilizer.finance/api/zpoints/user/{wallet}` và trích xuất:
+- `totalPoints` (tổng SP)
+- `rank` (thứ hạng bảng xếp hạng toàn cầu)
+- `totalTrades` (số giao dịch lịch sử)
+- `totalVolume` (khối lượng USD lịch sử)
+- `todaySpEarned` (SP kiếm được hôm nay)
 
-- `totalPoints` (total SP)
-- `rank` (global leaderboard position)
-- `totalTrades` (historical trade count)
-- `totalVolume` (historical USD volume)
-- `todaySpEarned` (SP earned today)
-
-### Daily Cap Calculation
+### Tính toán hạn mức ngày
 
 ```js
-spRemaining  = DAILY_CAP — todaySpEarned;
-volumeNeeded = spRemaining * 100; // approx 100 volume per SP
+spRemaining  = DAILY_CAP - todaySpEarned;
+volumeNeeded = spRemaining * 100; // khoảng 100 volume mỗi SP
 swapsNeeded  = floor(volumeNeeded / SWAP_AMOUNT) + 1;
 ```
 
-### Approval Logic
+### Logic phê duyệt
 
-For each stablecoin (USDT, USDC, USDS, PYUSD), the bot:
+Đối với mỗi stablecoin (USDT, USDC, USDS, PYUSD), bot:
 
-1. Reads the current `allowance(wallet, AMM)`.
-2. If the allowance is lower than the planned swap amount × 100, it sends an `approve(AMM, MaxUint256)` transaction.
-3. Otherwise, it skips approval.
+1. Đọc allowance hiện tại `allowance(ví, AMM)`.
+2. Nếu allowance thấp hơn số tiền swap dự kiến × 100, gửi giao dịch `approve(AMM, MaxUint256)`.
+3. Nếu không, bỏ qua bước phê duyệt.
 
-### Volume Farming Loop
+### Vòng lặp farm volume
 
-For each required round:
+Đối với mỗi vòng cần thiết:
 
-1. **USDT → USDZ**  
-   Read USDT balance, swap the full balance (or `SWAP_AMOUNT`, whichever is smaller) to USDZ via the Router.
-2. Wait 2 seconds.
-3. **USDZ → USDT**  
-   Read USDZ balance, swap the full balance back to USDT.
-4. Wait 2 seconds.
-5. Every 10 rounds, re-check API SP status. If today's cap is reached, stop.
+1. **USDT → USDZ**
+   Đọc số dư USDT, swap toàn bộ (hoặc `SWAP_AMOUNT`, lấy giá trị nhỏ hơn) sang USDZ qua Router.
+2. Đợi 2 giây.
+3. **USDZ → USDT**
+   Đọc số dư USDZ, swap toàn bộ trở lại USDT.
+4. Đợi 2 giây.
+5. Mỗi 10 vòng, kiểm tra lại SP qua API. Nếu đã đạt hạn mức hôm nay, dừng lại.
 
-This round-trip generates volume on both legs.
-
----
-
-## Troubleshooting
-
-### RPC Connection Failures
-
-- Verify the `RPC_URL` is reachable from your server.
-- PublicNode rate-limits apply. Consider using a dedicated Infura / Alchemy / Ankr key.
-- If using a proxy for RPC, note that ethers v6 proxy support is limited; you may need a custom `JsonRpcProvider` with proxy negotiation.
-
-### "Insufficient Funds" Errors
-
-- Ensure the wallet has both **Sepolia ETH** (for gas) and enough of the target stablecoin for the swap amount.
-- On testnet, use faucets like [faucet.quicknode.com](https://faucet.quicknode.com/) or [sepoliafaucet.com](https://sepoliafaucet.com/).
-
-### Stuck Approvals
-
-- If an approval transaction is mined but the bot still re-approves, check that you are approving the correct spender address (`AMM = 0xA3E...`).
-- Some tokens (e.g., USDT on some networks) do not approve `MaxUint256`. If you encounter issues, limit the approval to a specific amount.
-
-### API / Rate Limit Errors
-
-- The Stabilizer API may throttle frequent requests. The bot already retries 5 times with a 5-second delay, but consider adding additional backoff if you run many accounts.
-- Register for a dedicated endpoint or API key if available.
+Vòng khứ hồi này tạo ra volume cho cả hai nhánh.
 
 ---
 
-## Security Notes
+## Khắc phục sự cố
 
-- **Never** commit `accounts.txt` containing private keys to version control.
-- The `.env` file should also remain local and untracked.
-- Use read-only keys or test funds on testnets only.
-- Proxies with authentication (`user:pass`) are supported but transmitted in plaintext if stored in `proxy.txt`. Consider secret-management tools (environment variables, Vault, etc.) for production deployments.
-- This bot is for **testnet use only**. Unauthorized use on mainnets may violate service terms.
+### Lỗi kết nối RPC
 
----
+- Kiểm tra `RPC_URL` có thể truy cập từ server của bạn.
+- PublicNode có giới hạn tốc độ. Hãy cân nhắc dùng Infura / Alchemy / Ankr riêng.
+- Nếu dùng proxy cho RPC, lưu ý hỗ trợ proxy của ethers v6 còn hạn chế; bạn có thể cần `JsonRpcProvider` tùy chỉnh với proxy negotiation.
 
-## Contributing
+### Lỗi "Không đủ tiền"
 
-Contributions are welcome!
+- Đảm bảo ví có cả **ETH Sepolia** (trả gas) và đủ stablecoin cho số lượng swap.
+- Trên testnet, dùng faucet như [faucet.quicknode.com](https://faucet.quicknode.com/) hoặc [sepoliafaucet.com](https://sepoliafaucet.com/).
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+### Phê duyệt bị kẹt
 
----
+- Nếu giao dịch phê duyệt đã được khai thác nhưng bot vẫn phê duyệt lại, kiểm tra bạn đang phê duyệt đúng địa chỉ chi tiêu (`AMM = 0xA3E...`).
+- Một số token (ví dụ USDT trên một số mạng) không phê duyệt `MaxUint256`. Nếu gặp vấn đề, hãy giới hạn lượng phê duyệt theo một số tiền cụ thể.
 
-## License
+### Lỗi API / Giới hạn tốc độ
 
-MIT License. See `LICENSE` for details.
+- API Stabilizer có thể hạn chế tần suất yêu cầu. Bot đã thử lại 5 lần với delay 5 giây, nhưng hãy cân nhắc tăng backoff nếu bạn chạy nhiều tài khoản.
+- Đăng ký endpoint hoặc API key riêng nếu có sẵn.
 
 ---
 
+## Lưu ý bảo mật
+
+- **Không bao giờ** commit `accounts.txt` chứa private key vào hệ thống quản lý phiên bản.
+- Tập tin `.env` cũng nên giữ cục bộ và không theo dõi.
+- Dùng key chỉ đọc hoặc quỹ thử nghiệm chỉ cho testnet.
+- Proxy có xác thực (`user:pass`) được hỗ trợ nhưng được truyền dạng plaintext nếu lưu trong `proxy.txt`. Hãy cân nhắc công cụ quản lý secret (biến môi trường, Vault...) cho môi trường production.
+- Bot này chỉ dùng cho **testnet**. Việc sử dụng trái phép trên mainnet có thể vi phạm điều khoản dịch vụ.
+
+---
+
+## Đóng góp
+
+Đóng góp luôn được chào đón!
+
+1. Fork repository.
+2. Tạo nhánh tính năng (`git checkout -b feature/tinh-nang-tuyet-voi`).
+3. Commit thay đổi (`git commit -m 'Thêm tính năng tuyệt vời'`).
+4. Đẩy lên nhánh (`git push origin feature/tinh-nang-tuyet-voi`).
+5. Mở Pull Request.
+
+---
+
+## Giấy phép
+
+MIT License. Xem `LICENSE` để biết chi tiết.
+
+---
