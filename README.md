@@ -303,6 +303,3 @@ MIT License. See `LICENSE` for details.
 
 ---
 
-<p align="center">
-  Made with ❤️ by <a href="https://github.com/hourx">hourx</a>
-</p>
