@@ -71,7 +71,6 @@ cd stabilizer-finance-bot
 
 ```bash
 npm install
-node bot.js
 ```
 
 3. Copy `.env.example` sang `.env` và cấu hình các biến:
